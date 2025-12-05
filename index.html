@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Closer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="menu-overlay" onclick="toggleMenu()"></div>
+    <div id="side-menu">
+        <div class="menu-search">
+            <input type="text" placeholder="キーワード検索..." onkeypress="if(event.key==='Enter') { performSearch(this.value); toggleMenu(); }">
+        </div>
+        <div class="menu-header" onclick="menuAction('profile-screen', true)">
+            <div class="menu-user-icon">
+                <img id="menu-icon-img" src="" style="display:none;">
+                <span id="menu-icon-placeholder">👤</span>
+            </div>
+            <div>
+                <div class="menu-user-name" id="menu-username">Guest</div>
+                <div class="menu-user-rank" id="menu-userrank">Rate: --</div>
+            </div>
+        </div>
+        <div class="menu-list">
+            <div class="menu-item" onclick="menuAction('timeline-screen')">
+                <span class="menu-icon">🕘</span> タイムライン
+            </div>
+            <div class="menu-item" onclick="menuAction('ranking-screen')">
+                <span class="menu-icon">🔥</span> 投稿ランキング
+            </div>
+            <div class="menu-item" onclick="showCuriousList()">
+                <span class="menu-icon">🤔</span> 気になるリスト
+            </div>
+            <div class="menu-item" onclick="menuAction('user-ranking-screen')">
+                <span class="menu-icon">👑</span> ユーザーランキング
+            </div>
+            <div class="menu-item" onclick="menuAction('scout-screen')">
+                <span class="menu-icon">🏢</span> 企業スカウト
+            </div>
+            <div class="menu-item" onclick="checkMemberAccess('bookmarks-screen')">
+                <span class="menu-icon">📂</span> マイ単語帳
+            </div>
+            <div class="menu-item" onclick="checkMemberAccess('ai-practice-screen')">
+                <span class="menu-icon">🤖</span> AI壁打ち練習 <span style="font-size:10px; color:var(--accent); border:1px solid var(--accent); padding:1px 3px; border-radius:3px; margin-left:5px;">NEW</span>
+            </div>
+            <div class="menu-item" onclick="checkMemberAccess(null, 'company')">
+                <span class="menu-icon">🏢</span> 社内限定プラン
+            </div>
+            <hr style="border:0; border-top:1px solid #333; margin:10px 20px;">
+            <div class="menu-item" onclick="menuAction('settings-screen')">
+                <span class="menu-icon">⚙️</span> 設定 / お問い合わせ
+            </div>
+        </div>
+        <div style="padding: 20px; font-size: 11px; color: #555; text-align: center;">Closer v5.0 (Production)</div>
+    </div>
+
+    <div id="welcome-screen" class="screen active" style="justify-content:center; align-items:center; text-align:center; padding:40px; background: radial-gradient(circle at center, #222 0%, #000 100%);">
+        <div style="margin-bottom: 60px;">
+            <div style="font-size:48px; font-weight:900; margin-bottom:10px;">🔑 Closer</div>
+            <div style="font-size:14px; color:#888;">営業の「現場知」共有プラットフォーム</div>
+        </div>
+        <div style="width: 100%; max-width: 320px;">
+            <button class="btn btn-outline" onclick="startAsGuest()">登録なしで試す</button>
+            <button class="btn btn-gold" onclick="navTo('auth-screen')">ログイン / 新規登録</button>
+        </div>
+    </div>
+
+    <div id="auth-screen" class="screen">
+        <div class="app-header" style="justify-content: flex-start;">
+             <div class="menu-btn" onclick="navTo('welcome-screen')" style="font-size:20px;">← TOP</div>
+        </div>
+        <div style="padding:20px; text-align:center;"><h2>Members Only</h2></div>
+        <div class="auth-tabs">
+            <div class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">新規登録</div>
+            <div class="auth-tab" id="tab-login" onclick="switchAuthTab('login')">ログイン</div>
+        </div>
+        <div id="auth-flow-register" style="padding:20px;">
+            <div id="reg-step-1">
+                <label style="font-size:12px; color:#888;">メールアドレス <span style="color:var(--danger)">*</span></label>
+                <input type="email" id="reg-email" placeholder="example@email.com">
+                <button class="btn btn-gold" onclick="checkDeviceAndSendCode()">認証コードを送信</button>
+            </div>
+            <div id="reg-step-2" style="display:none;">
+                <label style="font-size:12px; color:#888;">認証コード</label>
+                <input type="tel" id="reg-code" placeholder="4桁のコード">
+                <button class="btn btn-gold" onclick="verifyCode()">認証</button>
+            </div>
+            <div id="reg-step-3" style="display:none;">
+                <p style="font-size:12px; color:#888; margin-bottom:5px;">基本情報 <span style="color:var(--danger)">*必須</span></p>
+                <input type="text" id="reg-name" placeholder="ユーザーネーム" required>
+                <input type="password" id="reg-pass" placeholder="パスワード(5-15文字)" required>
+                <label style="font-size:12px; color:#888;">取り扱い商材</label>
+                <div class="tag-container" id="product-tags"></div>
+                <button class="btn btn-gold" onclick="goToBioStep()">次へ</button>
+            </div>
+            <div id="reg-step-4" style="display:none;">
+                <p style="font-size:12px; color:#888; margin-bottom:5px;">詳細プロフィール</p>
+                <div class="avatar-uploader" onclick="document.getElementById('file-input').click()">
+                    <div id="avatar-preview" class="placeholder">📷</div>
+                    <img id="avatar-img" src="" style="display:none;">
+                </div>
+                <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                <input type="text" id="reg-history" placeholder="社歴（例：株式会社〇〇 3年）">
+                <input type="text" id="reg-role" placeholder="役職（例：営業部長）">
+                <textarea id="reg-bio" rows="3" placeholder="自己紹介"></textarea>
+                <button class="btn btn-gold" onclick="completeRegistration()">登録完了</button>
+            </div>
+        </div>
+        <div id="auth-flow-login" style="padding:20px; display:none;">
+            <input type="email" id="login-email" placeholder="メールアドレス">
+            <input type="password" id="login-pass" placeholder="パスワード">
+            <button class="btn btn-gold" onclick="doLogin()">ログイン</button>
+        </div>
+    </div>
+
+    <div id="timeline-screen" class="screen">
+        <div class="app-header">
+            <div class="menu-btn" onclick="toggleMenu()">☰</div>
+            <div class="logo-btn" onclick="refreshApp()">
+                <span class="logo-text" style="color:var(--accent);">Closer</span>
+            </div>
+            <div class="header-action" onclick="toggleNotification()">🔔<div id="badge-timeline" class="notification-badge"></div></div>
+        </div>
+        <div class="tab-nav">
+            <div class="tab-item active" onclick="switchTimelineTab('Main')">Main</div>
+            <div class="tab-item" onclick="switchTimelineTab('Elite')">Elite</div>
+            <div class="tab-item" onclick="switchTimelineTab('Spirit')">Spirit</div>
+            <div class="tab-item" onclick="switchTimelineTab('Following')">Following</div>
+        </div>
+        <div class="content" id="timeline-list" style="padding-top:10px;"></div>
+        <div class="fab" onclick="checkMemberAccess(null, 'post')">＋</div>
+    </div>
+
+    <div id="ranking-screen" class="screen"><div class="app-header"><div class="menu-btn" onclick="toggleMenu()">☰</div><div class="logo-text">Ranking</div></div><div class="content" id="ranking-list"></div></div>
+    <div id="user-ranking-screen" class="screen"><div class="app-header"><div class="menu-btn" onclick="toggleMenu()">☰</div><div class="logo-text">User Rank</div></div><div class="content" id="user-ranking-list"></div></div>
+    <div id="scout-screen" class="screen"><div class="app-header"><div class="menu-btn" onclick="toggleMenu()">☰</div><div class="logo-text" style="color:var(--company);">Scout</div></div><div class="content" id="scout-list">スカウト一覧</div></div>
+    
+    <div id="detail-screen" class="screen">
+        <div class="app-header"><div class="menu-btn" onclick="backToPrev()">←</div><div class="logo-text">Detail</div></div>
+        <div class="content">
+            <h2 id="detail-title" style="font-size:18px; margin-bottom:10px;"></h2>
+            <div id="detail-context" class="q-context"></div>
+            <div id="detail-tags" class="tags"></div>
+            <div id="answer-list"></div>
+        </div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+        <div class="app-header"><div class="menu-btn" onclick="backToPrev()">←</div><div>Profile</div><div></div></div>
+        <div class="profile-header">
+            <img id="prof-img" class="profile-icon" src="">
+            <div id="prof-name" class="profile-name">Name</div>
+            <div id="prof-role" class="profile-meta">Role</div>
+            <div class="profile-stats">
+                <div class="stat-box"><div class="stat-val" id="prof-rate">--</div><div class="stat-label">Rate</div></div>
+                <div class="stat-box"><div class="stat-val" id="prof-answers-count">--</div><div class="stat-label">Answers</div></div>
+            </div>
+            <div id="prof-coin-display" class="coin-balance" onclick="openWalletModal()" style="display:none;">🪙 -- Coins</div>
+            <div id="prof-action-area"></div>
+        </div>
+        <div class="profile-tabs">
+            <div class="profile-tab active" id="tab-prof-posts" onclick="switchProfileTab('posts')">公開投稿</div>
+            <div class="profile-tab" id="tab-prof-chat" onclick="switchProfileTab('chat')">1on1 チャット</div>
+        </div>
+        <div class="content" id="prof-content-area"></div>
+    </div>
+
+    <div id="ai-practice-screen" class="screen">
+        <div class="app-header"><div class="menu-btn" onclick="backToPrev()">←</div><div class="logo-text">AI Training</div></div>
+        <div class="content">
+            <div style="font-size:16px; font-weight:bold; margin-bottom:10px;">AI壁打ち (Beta)</div>
+            <div class="chat-container">
+                <div id="ai-chat-area" class="chat-area">
+                    <div class="chat-bubble bubble-ai">社長だ。用件は手短にな。</div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="ai-chat-input" placeholder="トークを入力..." style="margin:0; font-size:14px;">
+                    <button class="btn btn-gold" style="width:60px; margin:0;" onclick="sendAIMessage()">送信</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-screen" class="screen">
+        <div class="sub-header" style="padding:15px; border-bottom:1px solid #333;"><span onclick="backToPrev()">←</span> Settings</div>
+        <div class="settings-container">
+            <div class="settings-item" onclick="openWalletModal()"><div class="settings-label" style="color:var(--coin);">🪙 コイン管理 (購入)</div><div class="settings-value">›</div></div>
+            <div class="settings-item" onclick="logout()">ログアウト</div>
+            <div class="settings-item" onclick="requestAccountDeletion()" style="color:var(--danger);">アカウント削除</div>
+        </div>
+    </div>
+
+    <div id="profile-edit-screen" class="screen">
+        <div class="sub-header" style="padding:15px; border-bottom:1px solid #333;"><span onclick="backToPrev()">←</span> Edit Profile</div>
+        <div style="padding:20px;">
+            <div class="avatar-uploader" onclick="document.getElementById('edit-file-input').click()">
+                <img id="edit-avatar-img" src="" style="display:block; width:100%; height:100%; object-fit:cover;">
+            </div>
+            <input type="file" id="edit-file-input" accept="image/*" style="display:none;" onchange="previewEditImage(this)">
+            <input type="text" id="edit-name" placeholder="名前">
+            <input type="text" id="edit-role" placeholder="役職">
+            <textarea id="edit-bio" rows="3" placeholder="自己紹介"></textarea>
+            <button class="btn btn-gold" onclick="saveProfile()" style="margin-top:20px;">保存する</button>
+        </div>
+    </div>
+
+    <div id="post-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1500; align-items:center; justify-content:center; padding:20px; overflow-y:auto;" onclick="if(event.target===this)closePostModal()">
+        <div class="modal-card" style="width:100%; max-width:500px; background:#1c1c1e; padding:20px; border-radius:12px; text-align:left; margin:auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">投稿作成</h3>
+                <div onclick="closePostModal()" style="font-size:24px; cursor:pointer;">×</div>
+            </div>
+
+            <label style="font-size:12px; color:#888;">カテゴリ選択 [cite: 101]</label>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn-sm btn-outline selected-cat" id="cat-counter" onclick="selectCategory('counter')" style="flex:1; border-color:var(--accent); color:var(--accent);">🛡️ Counter</button>
+                <button class="btn-sm btn-outline" id="cat-hearing" onclick="selectCategory('hearing')" style="flex:1;">⚔️ Hearing</button>
+                <button class="btn-sm btn-outline" id="cat-spirit" onclick="selectCategory('spirit')" style="flex:1;">🔥 Spirit</button>
+            </div>
+
+            <div id="form-dynamic-area">
+                <div id="input-group-counter">
+                    <label style="font-size:12px; color:#888;">言われた言葉 (Trigger) [cite: 106]</label>
+                    <input type="text" id="post-trigger" placeholder="例：予算がないから検討できない">
+                    
+                    <label style="font-size:12px; color:#888;">切り返しトーク (Response) [cite: 106]</label>
+                    <textarea id="post-response" rows="3" placeholder="例：承知いたしました。予算以外に懸念点はございますか？"></textarea>
+                </div>
+            </div>
+
+            <div id="paid-setting-area" style="margin-top:15px; border-top:1px dashed #333; padding-top:15px;">
+                <label style="font-size:12px; color:#888; display:flex; align-items:center; gap:5px;">
+                    <input type="checkbox" id="post-is-paid" onchange="togglePaidOptions()"> 
+                    有料記事にする (詳細を有料エリアに隠す)
+                </label>
+                
+                <div id="paid-options" style="display:none; margin-top:10px; background:#111; padding:10px; border-radius:8px;">
+                    <label style="font-size:11px; color:#aaa;">価格 (Coins)</label>
+                    <input type="number" id="post-price" value="100" style="margin-bottom:10px;">
+                    <p style="font-size:10px; color:#666;">※チェックを入れた場合、上記の「Response/Question」部分は自動的に有料エリア(ぼかし)になります。</p>
+                </div>
+            </div>
+
+            <div class="tag-container" id="post-tags-container" style="margin-top:10px;">
+                </div>
+
+            <button class="btn btn-gold" onclick="submitPostFull()" style="margin-top:10px;">投稿する</button>
+        </div>
+    </div>
+
+    <div id="wallet-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2200; align-items:center; justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-card" style="width:90%; max-width:300px;">
+            <div class="modal-close" onclick="document.getElementById('wallet-modal').style.display='none'">×</div>
+            <h3>🪙 Coin Wallet</h3>
+            <p style="font-size:24px; font-weight:bold; margin:10px 0;" id="wallet-balance-disp">0 Coins</p>
+            <button class="btn btn-coin" onclick="alert('デモ決済: 500コイン追加'); addCoins(500);">500 Coins (¥500) 購入</button>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

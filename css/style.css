@@ -1,0 +1,197 @@
+/* --- デザイン変数 (Master Ver 5.0) --- */
+:root {
+    --bg-color: #000000;      /* 漆黒 */
+    --card-bg: #1c1c1e;
+    --text-main: #ffffff;
+    --text-sub: #b3b3b3;      /* グレー */
+    --accent: #D4AF37;        /* ゴールド */
+    --toggle-on: #D4AF37; 
+    --premium: #ff2d55; 
+    --standard: #007aff; 
+    --company: #34c759; 
+    --danger: #ff453a;
+    --coin: #FFA500;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --menu-width: 280px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    height: 100vh; height: 100dvh;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* 画面管理 */
+.screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: none; flex-direction: column; overflow-y: auto;
+    background: var(--bg-color);
+    padding-top: var(--safe-top); padding-bottom: var(--safe-bottom);
+    animation: fadeIn 0.2s ease;
+}
+.screen.active { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* UIパーツ */
+.btn {
+    display: flex; justify-content: center; align-items: center;
+    width: 100%; padding: 16px; border-radius: 12px;
+    font-weight: 700; font-size: 16px; cursor: pointer; border: none;
+    transition: opacity 0.1s; margin-bottom: 12px;
+}
+.btn:active { opacity: 0.7; }
+.btn-gold { background: var(--accent); color: #000; }
+.btn-outline { background: transparent; border: 1px solid var(--text-sub); color: var(--text-main); }
+.btn-icon-sm { padding: 5px 10px; border-radius: 6px; font-size: 12px; background: #333; color: #ccc; cursor: pointer; border: none; }
+
+input, textarea {
+    width: 100%; padding: 14px; margin-bottom: 15px;
+    background: var(--card-bg); border: 1px solid #333;
+    border-radius: 10px; color: var(--text-main); font-size: 16px; outline: none;
+}
+
+/* ヘッダー */
+.app-header {
+    background: rgba(0,0,0,0.9); backdrop-filter: blur(10px);
+    padding: 10px 15px; position: sticky; top: 0; z-index: 10;
+    border-bottom: 1px solid #222;
+    display: flex; justify-content: space-between; align-items: center;
+    height: 60px;
+}
+.logo-text { font-weight: 800; font-size: 20px; font-family: 'Georgia', serif; letter-spacing: 0.5px; }
+
+/* タブナビゲーション (New) */
+.tab-nav {
+    display: flex; border-bottom: 1px solid #333; background: #000;
+}
+.tab-item {
+    flex: 1; text-align: center; padding: 12px 0; font-size: 14px; color: #666; cursor: pointer;
+    border-bottom: 2px solid transparent; font-weight: bold;
+}
+.tab-item.active {
+    color: var(--accent); border-bottom-color: var(--accent);
+}
+
+/* カードリスト */
+.content { padding: 20px; flex: 1; overflow-y: auto; }
+.card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 15px; cursor: pointer; }
+.q-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; line-height: 1.5; }
+.tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+.tag { background: #000; border: 1px solid #333; color: #aaa; padding: 4px 10px; border-radius: 20px; font-size: 10px; }
+.card-actions { display: flex; border-top: 1px solid #333; padding-top: 10px; gap: 15px; font-size: 13px; color: #888; }
+
+/* サイドメニュー */
+#menu-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6); z-index: 998; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+#menu-overlay.open { opacity: 1; pointer-events: auto; }
+#side-menu {
+    position: fixed; top: 0; left: 0; width: var(--menu-width); height: 100%;
+    background: #151515; z-index: 999; transform: translateX(-100%); transition: transform 0.3s;
+    padding-top: calc(var(--safe-top) + 20px); border-right: 1px solid #333;
+}
+#side-menu.open { transform: translateX(0); }
+.menu-item { padding: 15px 20px; display: flex; align-items: center; color: var(--text-main); font-size: 15px; cursor: pointer; }
+.menu-item:active { background: #222; }
+
+/* プロフィール */
+.profile-header { text-align: center; padding: 20px; background: linear-gradient(180deg, #111 0%, #000 100%); }
+.profile-icon { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); object-fit: cover; margin-bottom: 10px;}
+.profile-name { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+
+/* その他 */
+.fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--accent); color: #000; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3); z-index: 50; cursor: pointer; }
+.notification-badge { position: absolute; top: 0; right: 0; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; display: none; }
+.notification-badge.active { display: block; }
+
+/* 回答カード */
+.answer-card { background: #151515; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 3px solid #333; }
+.blur-content { filter: blur(8px); user-select: none; opacity: 0.5; }
+
+/* --- ロック・ぼかし・サブスクUI --- */
+.blur-content {
+    filter: blur(12px); /* ぼかしを強く */
+    user-select: none;
+    opacity: 0.6;
+    pointer-events: none;
+    min-height: 80px;
+    background: linear-gradient(180deg, #fff 0%, #333 100%); /* 文字が見えなくても存在感す */
+    -webkit-background-clip: text;
+    color: transparent; 
+}
+
+.locked-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6); /* 背景を少し暗く */
+    z-index: 10;
+    border-radius: 12px;
+    backdrop-filter: blur(2px);
+}
+
+.lock-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    width: 90%;
+}
+
+.lock-btn {
+    flex: 1;
+    padding: 10px 5px;
+    font-size: 11px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.btn-buy { background: #333; color: #fff; border: 1px solid #555; }
+.btn-sub { background: var(--premium); color: #fff; box-shadow: 0 2px 10px rgba(255, 45, 85, 0.4); }
+
+/* --- ヒートマップ (Grit Visualization) --- */
+.heatmap-wrapper {
+    padding: 0 20px 20px;
+    overflow-x: auto; /* 横スクロール可能に */
+    margin-bottom: 20px;
+}
+.heatmap-container {
+    display: grid;
+    grid-template-rows: repeat(7, 10px); /* 7曜日 */
+    grid-auto-flow: column; /* 縦に埋めてから横へ */
+    gap: 3px;
+    width: max-content;
+}
+.heatmap-cell {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: #222; /* Level 0 */
+}
+/* 活動量レベルごとの色 (Goldの濃淡) */
+.h-level-1 { background-color: #443b1f; }
+.h-level-2 { background-color: #7a6a30; }
+.h-level-3 { background-color: #a89038; }
+.h-level-4 { background-color: #d4af37; box-shadow: 0 0 4px #d4af37; }
+
+.heatmap-label {
+    font-size: 10px; color: #666; margin-bottom: 5px; margin-left: 20px;
+}
